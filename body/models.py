@@ -73,7 +73,7 @@ class Diary_diet(models.Model):
     meal = models.DecimalField(max_digits=5, decimal_places=0, blank=True, null=True, default=0)
     tag = models.CharField(max_length = 100,blank=True)
     image = models.ImageField(upload_to = 'diet/diet_%Y-%m-%d_%H:%M:%S',blank=True)
-    image_count = models.IntegerField(blank=True)
+    # image_count = models.IntegerField(blank=True)
     lat = models.FloatField(max_length = 100,blank=True)
     lng = models.FloatField(max_length = 100,blank=True)
     recorded_at = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True)
@@ -87,7 +87,7 @@ class Diary_diet(models.Model):
             'meal':self.meal,
             'tag':self.tag,
             'image':self.image,
-            'image_count':self.image_count,
+            # 'image_count':self.image_count,
             'lat':self.lat,
             'lng':self.lng,
             'created_at':self.created_at,

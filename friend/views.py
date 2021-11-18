@@ -13,9 +13,9 @@ def friend_code(request):
 		# data = str(data, encoding="utf-8")
 		# data=json.loads(data)
 		if 1:
-			uid = request.user.uid #(在app上測試)
+			uid = request.user.id #(在app上測試)
 			# uid = "0f2541f1-8953-3ed4-9673-fb41519e21c1"
-			user = Friend.objects.get(uid=uid)
+			user = Friend.objects.get(id=uid)
 			message = { 
 			"status":"0",
 			'invite_code':user.invite_code
@@ -25,7 +25,7 @@ def friend_code(request):
 		return JsonResponse(message)
 @csrf_exempt
 def friend_list(request): # 控糖團列表!
-	uid = request.user.uid 
+	uid = request.user.id 
 	friends = []
 	friends_list = Friend_data.objects.filter(relation_id=uid, status=1)  # 好友列表(被邀請人)
 	if friends_list:
@@ -61,7 +61,7 @@ def friend_list(request): # 控糖團列表!
 @csrf_exempt
 def friend_requests(request):#測試完成
 	if request.method == 'GET':  #獲取空糖團邀請碼
-		uid = request.user.uid 
+		uid = request.user.id 
 		requests = Friend_data.objects.filter(relation_id=uid, status=0)
 		if requests:
 			user = UserSet.objects.get(uid=uid)
@@ -103,12 +103,12 @@ def friend_requests(request):#測試完成
 			list.append(message_list)
 			message = {"status":"0", "requests":list}
 		else:
-			uid = request.user.uid #(在app上測試)
-			user = UserSet.objects.get(uid=uid)
-			user1 = UserProfile.objects.get(uid=uid)
-			user2 = Friend_data.objects.get(uid=uid)
-			user3 = druginformation.objects.get(uid=uid)
-			user4 = Medical_Information.objects.get(uid=uid)
+			uid = request.user.id #(在app上測試)
+			user = UserSet.objects.get(id=uid)
+			user1 = UserProfile.objects.get(id=uid)
+			user2 = Friend_data.objects.get(id=uid)
+			user3 = druginformation.objects.get(id=uid)
+			user4 = Medical_Information.objects.get(id=uid)
 			message = { 
 			"status":"0",
 			"requests":
@@ -151,9 +151,9 @@ def friend_send(request):#測試完成
 			for i in data.replace("%40","@").split('&') if i.split('=')[1]
 		}
 		if 1:
-			uid = request.user.uid #(在app上測試)
+			uid = request.user.id #(在app上測試)
 			# uid = "0f2541f1-8953-3ed4-9673-fb41519e21c1" #postman測試(直接將1代換成uid)	
-			user = Friend.objects.get(uid=uid)
+			user = Friend.objects.get(id=uid)
 			try:
 				invite_code = data['invite_code']
 				profile = Friend.objects.get(invite_code=invite_code)
@@ -170,10 +170,10 @@ def friend_send(request):#測試完成
 @csrf_exempt
 def friend_accept(request):
 	if request.method == 'GET':  #接受控糖團邀請
-		uid = request.user.uid 
+		uid = request.user.id 
 		# uid = "0f2541f1-8953-3ed4-9673-fb41519e21c1"
 		if 1:
-			check = Friend_data.objects.get(uid =uid,status=0)
+			check = Friend_data.objects.get(id=uid,status=0)
 			check.friend_type="1"
 			check.relation_id=uid
 			check.read = True
@@ -191,7 +191,7 @@ def friend_refuse(request): # 拒絕控糖團邀請
 		uid = request.user.id
 		# uid = "0f2541f1-8953-3ed4-9673-fb41519e21c1"
 		if 1:
-			check = Friend_data.objects.get(uid =uid,status=0)
+			check = Friend_data.objects.get(id=uid,status=0)
 			check.read = True
 			check.friend_type="1"
 			check.status = 2

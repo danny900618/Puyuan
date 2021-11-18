@@ -14,6 +14,7 @@ from body.models import Blood_pressure,Weight,Blood_sugar,Diary_diet,UserCare
 from friend.models import Friend,Friend_data
 import os
 import urllib
+import re
 # Create your views here.
 @csrf_exempt #修飾器,一定要加不然會出問題的樣子
 def register(request):#def後面就接跟功能相關的單字之類
@@ -24,6 +25,7 @@ def register(request):#def後面就接跟功能相關的單字之類
 			i.split('=')[0]: i.split('=')[1]
 			for i in data.replace("%40","@").split('&') if i.split('=')[1]
 		}
+		# data=json.loads(data)
 		#try:
 		if 1:
 			account = data["account"]#這邊格式是json格式,postman在用的時候要用raw來測試
@@ -35,7 +37,7 @@ def register(request):#def後面就接跟功能相關的單字之類
 			uid = uuid.uuid3(uuid.NAMESPACE_DNS,account)
 			invite_code = ''.join(random.sample("0123456789",6))#隨機生成0~9的6位隨機整數
 			if 1:
-				user=UserProfile.objects.create_user(uid=uid,account=email,email=email,invite_code=invite_code,created_at=timeprint,updated_at=timeprint)
+				user=UserProfile.objects.create_user(uid=uid,account=account,username=account,email=email,invite_code=invite_code,created_at=timeprint,updated_at=timeprint)
 				user.set_password(password)
 				user.save()
 				Medical_Information.objects.create(uid=uid)
@@ -68,7 +70,8 @@ def login(request): # 登入 #測試成功
 		if 1:
 			print("123123")
 			# user = UserProfile.objects.get(account=account)
-			auth_obj = auth.authenticate(request,account=account,password=password)
+			auth_obj = auth.authenticate(username=account,password=password)
+			print(auth_obj)
 			if auth_obj:
 				request.session.create()
 				auth.login(request, auth_obj)
@@ -80,6 +83,27 @@ def login(request): # 登入 #測試成功
 		# except:
 		# 	return JsonResponse({'status':'1'})	
 
+# @csrf_exempt
+# def login(request):         #登入 
+# 	if request.method == "POST":
+# 		data = request.body
+# 		data = str(data,encoding="utf-8").replace("%40","@")
+# 		print(data)
+# 		a = re.split("=|&",str(data))
+# 		try:
+# 			account = a[1]
+# 			password = a[5]
+# 			auth_obj = auth.authenticate(username=account, password=password)
+# 			if auth_obj:
+# 				request.session.create()
+# 				auth.login(request, auth_obj)
+# 			message = {"status": "0",
+# 			"token":request.session.session_key
+# 			}
+# 		except Exception as e:
+# 			print(e)
+# 			message= {"status":"1"}
+# 		return JsonResponse(message)
 @csrf_exempt
 def logout(request): # 登出
 	if request.method == "POST":
@@ -89,6 +113,7 @@ def logout(request): # 登出
 @csrf_exempt
 def send(request):  # 傳送驗證信 #測試成功
 	if request.method == "POST":
+		print("777")
 		emaildata=request.POST.get('email')
 		msg=email.message.EmailMessage()
 		code = ''.join(random.sample("0123456789",6)) #隨機生成0~9的6位隨機整數
@@ -99,11 +124,13 @@ def send(request):  # 傳送驗證信 #測試成功
 		msg["Subject"] = "普元認證"
 		print(msg["To"])
 		msg.set_content(content)
-		print("ssssssssssssssss")
+		print("88888888888")
 		# return JsonResponse({'status':'0'})	
 		server = smtplib.SMTP_SSL("smtp.gmail.com",465)
+		print("8888889999")
 		# return JsonResponse({'status':'1'})	
-		server.login("c0981985611@gmail.com","0981985173")#這邊是以這組帳號密碼登入發送訊息，一開始要去google帳戶裡面設定>安全性>低安全性應用程式存權設定打開
+		server.login("c0981985611@gmail.com","kfjujmswgyjurwfb")#這邊是以這組帳號密碼登入發送訊息，一開始要去google帳戶裡面設定>安全性>低安全性應用程式存權設定打開
+		print("00000000")
 		server.send_message(msg)
 		server.close()
 		return JsonResponse({'status':'0'})	
@@ -163,10 +190,10 @@ def recheck(request): #註冊確認uuid.uuid3(uuid.NAMESPACE_DNS, 'python.org')
 	if request.method == 'GET':
 		user_ck = request.GET["account"]
 		try:
-			user = UserProfile.objects.get(username=user_ck)
-			message = {'status':'1'}
-		except:
+			# user = UserProfile.objects.get(account=user_ck)
 			message = {'status':'0'}
+		except:
+			message = {'status':'1'}
 		return JsonResponse(message)
 
 def privacy_policy(request): # 隱私權聲明 FBLogin
@@ -200,7 +227,7 @@ def privacy_policy(request): # 隱私權聲明 FBLogin
 # 			return JsonResponse({'status':'1'})	
 @csrf_exempt
 def user_set(request): 
-	uid = request.user.uid
+	uid = request.user.id
 	if request.method == 'PATCH':  #個人資訊上傳
 		data = request.body
 		data = str(data, encoding="utf-8")
@@ -208,7 +235,7 @@ def user_set(request):
 			i.split('=')[0]: i.split('=')[1]
 			for i in data.replace("%40","@").split('&') if i.split('=')[1]
 		}
-		user = UserSet.objects.get(uid=uid)
+		user = UserSet.objects.get(id=uid)
 		if 1:
 			user.name = data['name']
 			user.birthday = data['birthday']
@@ -225,8 +252,8 @@ def user_set(request):
 		return JsonResponse(message,safe=False)
 
 	if request.method == 'GET':   # 個人設定展示
-		UserProfiledata = UserProfile.objects.get(uid=uid)#s['_auth_user_id']
-		UserSetdata = UserSet.objects.get(uid=UserProfiledata.uid)
+		UserProfiledata = UserProfile.objects.get(id=uid)#s['_auth_user_id']
+		UserSetdata = UserSet.objects.get(id=uid)
 		if 1:
 			message = {
 			"status":"0",
@@ -311,9 +338,9 @@ def User_defult(request):#測試成功
 			for i in data.replace("%40","@").split('&') if i.split('=')[1]
 		}
 		try:
-			uid = request.user.uid #(在app上測試)
+			uid = request.user.id #(在app上測試)
 			# uid = "0f2541f1-8953-3ed4-9673-fb41519e21c1" #postman測試(直接將1代換成uid)
-			user = UserSet.objects.get(uid=uid)
+			user = UserSet.objects.get(id=uid)
 			user.sugar_delta_max = data['sugar_delta_max']
 			user.sugar_delta_min = data['sugar_delta_min']
 			user.sugar_morning_max=data['sugar_morning_max']
@@ -354,7 +381,7 @@ def User_setting(request):#測試成功
 		try:
 			uid = data['token']
 			user = UserSet.objects.get(uid=uid)
-			uid = request.user.uid 
+			uid = request.user.id 
 			user.after_recording = data['after_recording']
 			user.no_recording_for_a_day = data['no_recording_for_a_day']
 			user.over_max_or_under_min = data['over_max_or_under_min']
@@ -372,9 +399,9 @@ def User_setting(request):#測試成功
 def hba1c(request):
 	if request.method == "GET":
 		try:
-			uid = request.user.uid 
+			uid = request.user.id 
 			a1cs = []
-			user_alc_list = Medical_Information.objects.filter(uid=uid)
+			user_alc_list = Medical_Information.objects.filter(id=uid)
 			if user_alc_list:
 				for user_alc in user_alc_list:
 					a1cs.append(
@@ -403,21 +430,21 @@ def hba1c(request):
 			for i in data.replace("%40","@").split('&') if i.split('=')[1]
 		}
 		if 1:
-			uid = request.user.uid 
+			uid = request.user.id 
 			a1c=data['a1c']
 			# recorded_at= str(datetime.strptime(data['recorded_at'], "%Y-%m-%d"))
-			Medical_Information.objects.create(uid=uid, a1c=a1c)
+			Medical_Information.objects.create(id=uid, a1c=a1c)
 			message = {"status":"0"}
 		else :
 			message = {"status":"1"}
 		return JsonResponse(message)
 	if request.method == 'DELETE':  #刪除糖化血色素
-		uid = request.user.uid 
+		uid = request.user.id 
 		try:
 			if request.GET.getlist("ids[]"):
 				for id in request.GET.getlist("ids[]"):
 					Medical_Information.objects.filter(
-						uid=uid).delete()
+						id=uid).delete()
 		except Exception as e:
 			message = {"status": "1"}
 		else:
@@ -434,8 +461,8 @@ def med_inf(request):
 		data = str(data, encoding="utf-8")
 		data=json.loads(data)
 		try:
-			uid = request.user.uid #(在app上測試)
-			user = Medical_Information.objects.get(uid=uid)
+			uid = request.user.id #(在app上測試)
+			user = Medical_Information.objects.get(id=uid)
 			message = {
 			"status":"0",
 			"medical_info": {
@@ -457,8 +484,8 @@ def med_inf(request):
 		data = str(data, encoding="utf-8")
 		data=json.loads(data)
 		try:
-			uid = request.user.uid #(在app上測試)
-			user = Medical_Information.objects.get(uid=uid)
+			uid = request.user.id #(在app上測試)
+			user = Medical_Information.objects.get(id=uid)
 			user.diabetes_type = data['diabetes_type']
 			user.oad = data['oad']
 			user.insulin = data['insulin']
@@ -473,8 +500,8 @@ def drug_inf(request):
 	if request.method == 'GET':  # 藥物資訊展示  測試完成
 		try:
 			drug_useds = []
-			uid = request.user.uid 
-			drug_list = druginformation.objects.filter(uid=uid)
+			uid = request.user.id 
+			drug_list = druginformation.objects.filter(id=uid)
 			if drug_list:
 				for drug in drug_list:
 					drug_useds.append(
@@ -502,7 +529,7 @@ def drug_inf(request):
 		}
 		if 1:
 			drugtype = data['type']
-			uid = request.user.uid 
+			uid = request.user.id 
 			druginformation.objects.create(
             uid=uid, drugtype=drugtype,drugname=urllib.parse.unquote(data['name']))
 			message = {
@@ -512,7 +539,7 @@ def drug_inf(request):
 	 		message = {"status":"1"}
 		return JsonResponse(message)
 	if request.method == 'DELETE':  #刪除藥物資訊
-		uid = request.user.uid 
+		uid = request.user.id 
 		try:
 			if request.GET.getlist("ids[]"):
 				for ID in request.GET.getlist("ids[]"):
@@ -536,8 +563,8 @@ def notification(request):
 			for i in data.replace("%40","@").split('&') if i.split('=')[1]
 		}
 		try:
-			uid = request.user.uid 
-			user = Notification.objects.get(uid=uid)
+			uid = request.user.id 
+			user = Notification.objects.get(id=uid)
 			user.message = data['message']
 			user.save()
 			message = {
@@ -558,8 +585,8 @@ def share(request):
 			for i in data.replace("%40","@").split('&') if i.split('=')[1]
 		}
 		if 1:
-			uid = request.user.uid 			
-			user = Share.objects.get(uid=uid)
+			uid = request.user.id 			
+			user = Share.objects.get(id=uid)
 			user.data_type = data['type']
 			user.fid= data['id']
 			user.relation_type = data['relation_type']
@@ -574,12 +601,12 @@ def share(request):
 @csrf_exempt
 def share_check(request):
 	if request.method == 'GET':  # 查看分享（含自己分享出去的）!
-		uid = request.user.uid 		
-		user_pro = UserProfile.objects.get(uid=uid)
-		user = UserSet.objects.get(uid=uid)
+		uid = request.user.id 		
+		user_pro = UserProfile.objects.get(id=uid)
+		user = UserSet.objects.get(id=uid)
 		print("123123")
 		if Share.data_type == '0' :
-			share_data = Blood_pressure.objects.get(uid=uid)
+			share_data = Blood_pressure.objects.get(id=uid)
 			created_at = datetime.strftime(share_data.created_at, '%Y-%m-%d %H:%M:%S')
 			recorded_at = datetime.strftime(share_data.recorded_at, '%Y-%m-%d %H:%M:%S')
 			created_at_userfile = datetime.strftime(user.created_at, '%Y-%m-%d %H:%M:%S')
@@ -733,7 +760,7 @@ def share_check(request):
 @csrf_exempt
 def newnews(request): #最新消息
 	if request.method == 'GET':
-		uid = request.user.uid 		
+		uid = request.user.id 		
 		# user = UserProfile.objects.get(uid=uid)
 		# user1 = UserSet.objects.get(uid=uid)
 		# user2 = Notification.objects.get(uid=uid)

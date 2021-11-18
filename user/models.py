@@ -7,7 +7,7 @@ class UserProfile(AbstractUser):
     id = models.AutoField(primary_key=True)
     uid= models.CharField(max_length=100, blank=True)
     account = models.CharField(max_length=100, blank=True)
-    username = models.CharField(max_length=100, blank=True)
+    username = models.CharField(max_length=100, blank=True,unique=True)
     password = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=100, blank=True)
     email = models.CharField(max_length=100, blank=True)

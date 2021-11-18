@@ -22,9 +22,8 @@ def b_pressure(request):#上傳成功,但是終端機會報錯
 			for i in data.replace("%40","@").split('&') if i.split('=')[1]
 		}
 		if 1:
-			uid = request.user.uid #(在app上測試)
-			# uid = "0f2541f1-8953-3ed4-9673-fb41519e21c1" #postman測試(直接將1代換成uid)			
-			user = Blood_pressure.objects.get(uid=uid)
+			uid = request.user.id #(在app上測試)			
+			user = Blood_pressure.objects.get(id=uid)
 			user.systolic = data['systolic']
 			user.diastolic = data['diastolic']
 			user.pulse = data['pulse']
@@ -44,8 +43,8 @@ def weight(request):#上傳成功,但是終端機會報錯
 			for i in data.replace("%40","@").split('&') if i.split('=')[1]
 		}
 		if 1:
-			uid = request.user.uid #(在app上測試)
-			user = Weight.objects.get(uid=uid)
+			uid = request.user.id #(在app上測試)
+			user = Weight.objects.get(id=uid)
 			user.weight=data['weight']
 			user.body_fat=data['body_fat']
 			user.bmi=data['bmi']
@@ -67,8 +66,8 @@ def b_sugar(request):#上傳成功,但是終端機會報錯  #串完
 		print("123")
 		if 1:
 			# uid = "0f2541f1-8953-3ed4-9673-fb41519e21c1"
-			uid = request.user.uid #(在app上測試)
-			user = Blood_sugar.objects.get(uid=uid)
+			uid = request.user.id #(在app上測試)
+			user = Blood_sugar.objects.get(id=uid)
 			user.sugar=data['sugar']
 			user.timeperiod=data['timeperiod']
 			user.recorded_at=data['recorded_at']
@@ -83,11 +82,10 @@ def last_upload(request):#測試成功
 		data = request.body
 		data = str(data, encoding="utf-8")
 		data=json.loads(data)
-		uid = request.user.uid #(在app上測試)
-		# uid = "0f2541f1-8953-3ed4-9673-fb41519e21c1" #postman測試(直接將1代換成uid)
-		user = Weight.objects.get(uid=uid)
-		user1 = Blood_sugar.objects.get(uid=uid)
-		user2 = Blood_pressure.objects.get(uid=uid)
+		uid = request.user.id #(在app上測試)
+		user = Weight.objects.get(id=uid)
+		user1 = Blood_sugar.objects.get(id=uid)
+		user2 = Blood_pressure.objects.get(id=uid)
 		try:
 			user.save()
 			return JsonResponse({
@@ -112,13 +110,12 @@ def records(request):#測試成功   #串完
 		# data=json.loads(data) #少一個input "diets"
 		# print("777")
 		if 1:
-			# uid = request.user.uid #(在app上測試)
 			print("123123")
-			user = Blood_sugar.objects.get(uid=uid)
+			user = Blood_sugar.objects.get(id=uid)
 			print("234234")
-			user1 = Blood_pressure.objects.get(uid=uid)
+			user1 = Blood_pressure.objects.get(id=uid)
 			print("234456567674234")
-			user2 = Weight.objects.get(uid=uid)
+			user2 = Weight.objects.get(id=uid)
 			return JsonResponse({
 			"status":"0",
 			"blood_sugars":{
@@ -148,11 +145,11 @@ def records(request):#測試成功   #串完
 		# return JsonResponse({"status":"1"})
 	if request.method == 'DELETE':#刪除日記記錄
 		try:
-			user = Blood_sugar.objects.get(uid=uid)
+			user = Blood_sugar.objects.get(id=uid)
 			user.delete()
-			user1 = Blood_pressure.objects.get(uid=uid)
+			user1 = Blood_pressure.objects.get(id=uid)
 			user1.delete()
-			user2 = Weight.objects.get(uid=uid)
+			user2 = Weight.objects.get(id=uid)
 			user2.delete()
 			return JsonResponse({"status":"0"})
 		except:
@@ -220,8 +217,8 @@ def diary_diet(request):
 		}
 		if 1:
 			# uid = "0f2541f1-8953-3ed4-9673-fb41519e21c1"
-			uid = request.user.uid #(在app上測試)
-			user = Diary_diet.objects.get(uid=uid)
+			uid = request.user.id #(在app上測試)
+			user = Diary_diet.objects.get(id=uid)
 			print("2")
 			user.meal=data['meal']
 			user.tag = request.POST.getlist("tag[][]")
@@ -248,9 +245,9 @@ def care(request):
 			for i in data.replace("%40","@").split('&') if i.split('=')[1]
 		}
 		if 1:
-			uid = request.user.uid #(在app上測試)
+			uid = request.user.id #(在app上測試)
 			# uid = "0f2541f1-8953-3ed4-9673-fb41519e21c1" #postman測試(直接將1代換成uid)			
-			user = UserCare.objects.get(uid=uid)
+			user = UserCare.objects.get(id=uid)
 			user.message = data['message']
 			user.save()
 			return JsonResponse({"status":"0"})
@@ -264,9 +261,9 @@ def care(request):
 		# 	i.split('=')[0]: i.split('=')[1]
 		# 	for i in data.replace("%40","@").split('&') if i.split('=')[1]
 		# }
-		uid = request.user.uid #(在app上測試)
+		uid = request.user.id #(在app上測試)
 		# uid = "0f2541f1-8953-3ed4-9673-fb41519e21c1" #postman測試(直接將1代換成uid)
-		user = UserCare.objects.get(uid=uid)
+		user = UserCare.objects.get(id=uid)
 		if 1:
 			return JsonResponse(
 			{
